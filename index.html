@@ -5,9 +5,34 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Juggling simulator</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Chango&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>This is the juggling simulator</h1>
+  <div id="container">
+    <h1>This is the juggling simulator</h1>
+    <div id="board">
+      <svg viewBox="0 0 500 500">
+        <circle
+          cx="250" cy="300"
+          r="30"
+          fill="white" stroke="black"
+        />
+        <rect
+          x="215" y="350"
+          width="70" height="100"
+          fill="white" stroke="black"
+        />
+      </svg>
+    </div>
+    <form id="siteswap-form">
+      <label for="siteswap">Siteswap:</label>
+      <input id="siteswap" name="siteswap" placevalue="" type="text"/>
+      <button type="submit">Go</button>
+    </form>
+  </div>
+  <script src="js/script.js" defer type="module"></script>
 </body>
 </html>
