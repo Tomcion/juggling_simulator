@@ -15,8 +15,9 @@ h1 {
 }
 
 #board {
-  width: 70vmin;
-  height: 70vmin;
+  position: relative;
+  width: 500px;
+  height: 500px;
   border: 1px black solid;
 }
 
@@ -44,3 +45,4 @@ button:hover {
   color: rgb(39, 163, 1);
   opacity: 50%;
 }
+
