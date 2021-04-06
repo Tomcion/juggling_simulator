@@ -1,19 +1,47 @@
+import { drawBody, drawHands, drawBalls } from './drawing.js';
+
+const canvas = document.querySelector('canvas');
+
+const WIDTH = 1000;
+const HEIGHT = 1000;
+
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
+
+const c = canvas.getContext('2d');
 
 let lastRenderTime = 0;
 const fps = 10;
+// const period = 2; //number of seconds for a full throw
+const framesPerThrow = 20;
 
 let playing = false;
-const WIDTH = 500;
-const HEIGHT = 500;
-
-const bodyWidthUp = 100;
-const bodyWidthDown = 70;
-const bodyHeight = 100;
-const downMargin = 20;
-const headRadius = 35;
-const neckLength = 20;
-
 let siteswap;
+
+const handsDistance = 200; //The maximum distance between the hands and the middle of the screen
+const handsOffsetX = 140; //how much hands move on the x axis while juggling
+const handsOffsetY = 100; //how much hands move on the y axis while juggling
+const handsAccelerationX = (handsOffsetX) / ((framesPerThrow / 4) * (framesPerThrow / 4));
+const handsAccelerationY = (handsOffsetY) / ((framesPerThrow / 4) * (framesPerThrow / 4));
+const handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
+
+let stepInCycle = 1; //1 to 20
+
+let rightHand = {
+  x: (WIDTH / 2) - handsDistance, y: HEIGHT - 120,
+  dx: 0, dy: handsMaxVy
+};
+
+let leftHand = {
+  x: (WIDTH / 2) + handsDistance - handsOffsetX, y: HEIGHT - 120,
+  dx: 0, dy: -handsMaxVy
+};
+
+let balls = [
+  { x: 30, y: 100 },
+  { x: 60, y: 130 },
+  { x: 90, y: 160 }
+];
 
 function render(currentTime) {
   if(!playing) return;
@@ -28,9 +56,12 @@ function render(currentTime) {
 
   c.clearRect(0, 0, WIDTH, HEIGHT);
 
-  drawBody();
-  drawHands();
-  drawBalls();
+  drawBody(c);
+  drawHands(c, rightHand, leftHand);
+  drawBalls(c, balls);
+
+  stepInCycle++;
+  if(stepInCycle > 20) stepInCycle = 1;
 }
 
 const siteswapForm = document.getElementById('siteswap-form');
@@ -42,51 +73,42 @@ siteswapForm.addEventListener('submit', (e) => {
   siteswap = siteswapInput.value;
   playing = true;
 
-  render();
+  requestAnimationFrame(render);
 });
 
-const canvas = document.querySelector('canvas');
-
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
-
-const c = canvas.getContext('2d');
-
-
 function updateHands() {
-  
+  leftHand.x += leftHand.dx;
+  rightHand.x += rightHand.dx;
+
+  leftHand.y += leftHand.dy;
+  rightHand.y += rightHand.dy;
+
+  if(stepInCycle <= framesPerThrow / 4) {
+    rightHand.dx += handsAccelerationX;
+    leftHand.dx += handsAccelerationX;
+    rightHand.dy -= handsAccelerationY;
+    leftHand.dy += handsAccelerationY;
+  }else if(stepInCycle <= framesPerThrow / 2) {
+    rightHand.dx -= handsAccelerationX;
+    leftHand.dx -= handsAccelerationX;
+    rightHand.dy -= handsAccelerationY;
+    leftHand.dy += handsAccelerationY;
+  }else if(stepInCycle <= framesPerThrow * 3 / 4) {
+    rightHand.dx -= handsAccelerationX;
+    leftHand.dx -= handsAccelerationX;
+    rightHand.dy += handsAccelerationY;
+    leftHand.dy -= handsAccelerationY;
+  }else if(stepInCycle <= framesPerThrow) {
+    rightHand.dx += handsAccelerationX;
+    leftHand.dx += handsAccelerationX;
+    rightHand.dy += handsAccelerationY;
+    leftHand.dy -= handsAccelerationY;
+  }
 }
 
 function updateBalls() {
 
 }
 
-function drawHands() {
-
-}
-
-function drawBalls() {
-
-}
-
-function drawBody() {
-  c.beginPath();
-  c.moveTo((WIDTH + bodyWidthUp) / 2, HEIGHT - downMargin - bodyHeight);
-  c.lineTo(WIDTH - ((WIDTH + bodyWidthUp) / 2), HEIGHT - downMargin - bodyHeight);
-  c.lineTo(WIDTH - ((WIDTH + bodyWidthDown) / 2), HEIGHT - downMargin);
-  c.lineTo((WIDTH + bodyWidthDown) / 2, HEIGHT - downMargin);
-  c.closePath();
-
-  c.moveTo(
-    (WIDTH / 2) + headRadius,
-    HEIGHT - downMargin - bodyHeight - neckLength - headRadius
-  );
-
-  c.arc(
-    WIDTH / 2,
-    HEIGHT - downMargin - bodyHeight - neckLength - headRadius,
-    headRadius, 0, Math.PI * 2, false
-  );
-
-  c.stroke();
-}
+drawBody(c);
+drawHands(c, rightHand, leftHand);
