@@ -1,4 +1,5 @@
 import { drawBody, drawHands, drawBalls } from './drawing.js';
+import { Ball } from './ball.js';
 
 const canvas = document.querySelector('canvas');
 
@@ -18,9 +19,10 @@ const framesPerThrow = 20;
 let playing = false;
 let siteswap;
 
+const handsHeight = 120;
 const handsDistance = 200; //The maximum distance between the hands and the middle of the screen
 const handsOffsetX = 140; //how much hands move on the x axis while juggling
-const handsOffsetY = 100; //how much hands move on the y axis while juggling
+const handsOffsetY = 140; //how much hands move on the y axis while juggling
 const handsAccelerationX = (handsOffsetX) / ((framesPerThrow / 4) * (framesPerThrow / 4));
 const handsAccelerationY = (handsOffsetY) / ((framesPerThrow / 4) * (framesPerThrow / 4));
 const handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
@@ -28,20 +30,16 @@ const handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
 let stepInCycle = 1; //1 to 20
 
 let rightHand = {
-  x: (WIDTH / 2) - handsDistance, y: HEIGHT - 120,
+  x: (WIDTH / 2) - handsDistance, y: HEIGHT - handsHeight - handsMaxVy,
   dx: 0, dy: handsMaxVy
 };
 
 let leftHand = {
-  x: (WIDTH / 2) + handsDistance - handsOffsetX, y: HEIGHT - 120,
+  x: (WIDTH / 2) + handsDistance - handsOffsetX, y: HEIGHT - handsHeight,
   dx: 0, dy: -handsMaxVy
 };
 
-let balls = [
-  { x: 30, y: 100 },
-  { x: 60, y: 130 },
-  { x: 90, y: 160 }
-];
+let balls = [];
 
 function render(currentTime) {
   if(!playing) return;
@@ -77,6 +75,7 @@ siteswapForm.addEventListener('submit', (e) => {
 });
 
 function updateHands() {
+
   leftHand.x += leftHand.dx;
   rightHand.x += rightHand.dx;
 
@@ -107,7 +106,46 @@ function updateHands() {
 }
 
 function updateBalls() {
+  console.log(balls.length)
+  if(stepInCycle == 1) {
+    balls = balls.filter(ball => ball.y <= HEIGHT - handsHeight);
 
+    balls = balls.map(ball => {
+      if(ball.y <= HEIGHT - handsHeight) {
+        ball.inHand = false;
+        return ball;
+      }else return ball;
+    });
+
+    balls.push(new Ball(
+      rightHand.x, rightHand.y, 0, 0, true, 5
+    ));
+  }else if(stepInCycle == (framesPerThrow / 2) + 1) {
+    balls = balls.filter(ball => ball.y <= HEIGHT - handsHeight);
+
+    balls = balls.map(ball => {
+      if(ball.y <= HEIGHT - handsHeight) {
+        ball.inHand = false;
+        return ball;
+      }else return ball;
+    });
+
+    balls.push(new Ball(
+      leftHand.x, leftHand.y, 0, 0, false, 5
+    ));
+  }
+
+  for(let i = 0; i < balls.length; i++) {
+    if(balls[i].inHand) {
+      balls[i].followHand(
+        balls[i].isRightHand
+          ? rightHand
+          : leftHand
+      );
+    }else {
+      balls[i].update();
+    }
+  }
 }
 
 drawBody(c);
