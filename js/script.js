@@ -12,17 +12,19 @@ canvas.height = HEIGHT;
 const c = canvas.getContext('2d');
 
 let lastRenderTime = 0;
-const fps = 10;
+const fps = 15;
 // const period = 2; //number of seconds for a full throw
 const framesPerThrow = 20;
 
 let playing = false;
-let siteswap;
+let siteswap = 5;
+
+const gravity = 2;
 
 const handsHeight = 120;
 const handsDistance = 200; //The maximum distance between the hands and the middle of the screen
 const handsOffsetX = 140; //how much hands move on the x axis while juggling
-const handsOffsetY = 140; //how much hands move on the y axis while juggling
+const handsOffsetY = 200; //how much hands move on the y axis while juggling
 const handsAccelerationX = (handsOffsetX) / ((framesPerThrow / 4) * (framesPerThrow / 4));
 const handsAccelerationY = (handsOffsetY) / ((framesPerThrow / 4) * (framesPerThrow / 4));
 const handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
@@ -112,26 +114,26 @@ function updateBalls() {
 
     balls = balls.map(ball => {
       if(ball.y <= HEIGHT - handsHeight) {
-        ball.inHand = false;
+        ball.release(gravity, framesPerThrow);
         return ball;
       }else return ball;
     });
 
     balls.push(new Ball(
-      rightHand.x, rightHand.y, 0, 0, true, 5
+      rightHand.x, rightHand.y, true, siteswap
     ));
   }else if(stepInCycle == (framesPerThrow / 2) + 1) {
     balls = balls.filter(ball => ball.y <= HEIGHT - handsHeight);
 
     balls = balls.map(ball => {
       if(ball.y <= HEIGHT - handsHeight) {
-        ball.inHand = false;
+        ball.release(gravity, framesPerThrow);
         return ball;
       }else return ball;
     });
 
     balls.push(new Ball(
-      leftHand.x, leftHand.y, 0, 0, false, 5
+      leftHand.x, leftHand.y, false, siteswap
     ));
   }
 
@@ -143,7 +145,12 @@ function updateBalls() {
           : leftHand
       );
     }else {
-      balls[i].update();
+      balls[i].update(
+        framesPerThrow,
+        handsOffsetX,
+        handsDistance,
+        gravity
+      );
     }
   }
 }

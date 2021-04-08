@@ -52,7 +52,7 @@ export function drawHands(c, rightHand, leftHand) {
   c.stroke();
 }
 
-const ballRadius = 30;
+const ballRadius = 25;
 
 export function drawBalls(c, balls) {
   for(let i = 0; i < balls.length; i++) {
