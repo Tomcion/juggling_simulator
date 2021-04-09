@@ -12,19 +12,20 @@ canvas.height = HEIGHT;
 const c = canvas.getContext('2d');
 
 let lastRenderTime = 0;
-const fps = 15;
+const fps = 25;
 // const period = 2; //number of seconds for a full throw
 const framesPerThrow = 20;
 
 let playing = false;
-let siteswap = 5;
+let siteswap;
+let currentNumberIndex = 0;
 
 const gravity = 2;
 
 const handsHeight = 120;
 const handsDistance = 200; //The maximum distance between the hands and the middle of the screen
 const handsOffsetX = 140; //how much hands move on the x axis while juggling
-const handsOffsetY = 200; //how much hands move on the y axis while juggling
+const handsOffsetY = 100; //how much hands move on the y axis while juggling
 const handsAccelerationX = (handsOffsetX) / ((framesPerThrow / 4) * (framesPerThrow / 4));
 const handsAccelerationY = (handsOffsetY) / ((framesPerThrow / 4) * (framesPerThrow / 4));
 const handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
@@ -109,7 +110,16 @@ function updateHands() {
 
 function updateBalls() {
   console.log(balls.length)
-  if(stepInCycle == 1) {
+  if(
+    stepInCycle == 1 ||
+    stepInCycle == (framesPerThrow / 2) + 1
+  ) {
+    currentNumberIndex++;
+
+    if(currentNumberIndex >= siteswap.toString().length) {
+      currentNumberIndex = 0;
+    }
+
     balls = balls.filter(ball => ball.y <= HEIGHT - handsHeight);
 
     balls = balls.map(ball => {
@@ -118,22 +128,17 @@ function updateBalls() {
         return ball;
       }else return ball;
     });
-
+  }
+  
+  if(stepInCycle == 1) {
     balls.push(new Ball(
-      rightHand.x, rightHand.y, true, siteswap
+      rightHand.x, rightHand.y, 
+      true, siteswap[currentNumberIndex]
     ));
   }else if(stepInCycle == (framesPerThrow / 2) + 1) {
-    balls = balls.filter(ball => ball.y <= HEIGHT - handsHeight);
-
-    balls = balls.map(ball => {
-      if(ball.y <= HEIGHT - handsHeight) {
-        ball.release(gravity, framesPerThrow);
-        return ball;
-      }else return ball;
-    });
-
     balls.push(new Ball(
-      leftHand.x, leftHand.y, false, siteswap
+      leftHand.x, leftHand.y,
+      false, siteswap[currentNumberIndex]
     ));
   }
 
@@ -149,7 +154,8 @@ function updateBalls() {
         framesPerThrow,
         handsOffsetX,
         handsDistance,
-        gravity
+        gravity,
+        handsHeight
       );
     }
   }
