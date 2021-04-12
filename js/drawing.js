@@ -1,28 +1,37 @@
 
-const WIDTH = 1000;
-const HEIGHT = 1000;
+let WIDTH, HEIGHT, bodyWidthUp, bodyWidthDown,
+    bodyHeight, downMargin, headRadius, neckLength,
+    bodyPoint1x, bodyPoint1y,
+    bodyPoint2x, bodyPoint2y,
+    bodyPoint3x, bodyPoint3y,
+    bodyPoint4x, bodyPoint4y,
+    headCenterX, headCenterY, headBorderX;
 
-const bodyWidthUp = 200;
-const bodyWidthDown = 140;
-const bodyHeight = 200;
-const downMargin = 40;
-const headRadius = 70;
-const neckLength = 40;
+export function setVariables(width, height) {
+  WIDTH = width;
+  HEIGHT = height;
 
-const bodyPoint1x = (WIDTH + bodyWidthUp) / 2;
-const bodyPoint1y = HEIGHT - downMargin - bodyHeight;
-const bodyPoint2x = WIDTH - ((WIDTH + bodyWidthUp) / 2);
-const bodyPoint2y = HEIGHT - downMargin - bodyHeight;
-const bodyPoint3x = WIDTH - ((WIDTH + bodyWidthDown) / 2);
-const bodyPoint3y = HEIGHT - downMargin;
-const bodyPoint4x = (WIDTH + bodyWidthDown) / 2;
-const bodyPoint4y = HEIGHT - downMargin;
+  bodyWidthUp = 200;
+  bodyWidthDown = 140;
+  bodyHeight = 200;
+  downMargin = 40;
+  headRadius = 70;
+  neckLength = 40;
 
-const headCenterX = WIDTH / 2;
-const headCenterY = HEIGHT - downMargin - bodyHeight - neckLength - headRadius;
+  bodyPoint1x = (WIDTH + bodyWidthUp) / 2;
+  bodyPoint1y = HEIGHT - downMargin - bodyHeight;
+  bodyPoint2x = WIDTH - ((WIDTH + bodyWidthUp) / 2);
+  bodyPoint2y = HEIGHT - downMargin - bodyHeight;
+  bodyPoint3x = WIDTH - ((WIDTH + bodyWidthDown) / 2);
+  bodyPoint3y = HEIGHT - downMargin;
+  bodyPoint4x = (WIDTH + bodyWidthDown) / 2;
+  bodyPoint4y = HEIGHT - downMargin;
 
-const headBorderX = (WIDTH / 2) + headRadius;
+  headCenterX = WIDTH / 2;
+  headCenterY = HEIGHT - downMargin - bodyHeight - neckLength - headRadius;
 
+  headBorderX = (WIDTH / 2) + headRadius;
+}
 export function drawBody(c) {
   c.strokeStyle = 'black';
   c.lineWidth = 2;

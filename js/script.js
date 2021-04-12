@@ -1,10 +1,10 @@
-import { drawBody, drawHands, drawBalls } from './drawing.js';
+import { drawBody, drawHands, drawBalls, setVariables } from './drawing.js';
 import { Ball } from './ball.js';
 
 const canvas = document.querySelector('canvas');
 
-const WIDTH = 1000;
-const HEIGHT = 1000;
+let WIDTH = 1000;
+let HEIGHT = 1000;
 
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
@@ -12,40 +12,78 @@ canvas.height = HEIGHT;
 const c = canvas.getContext('2d');
 
 let lastRenderTime = 0;
-const fps = 25;
-// const period = 2; //number of seconds for a full throw
-const framesPerThrow = 20;
+const fps = 24;
+let framesPerThrow = 20;
 
-let playing = false;
-let siteswap;
+let siteswap = '744';
+let maxThrowNumber = 0;
 let currentNumberIndex = 0;
-
-const gravity = 2;
 
 const handsHeight = 120;
 const handsDistance = 200; //The maximum distance between the hands and the middle of the screen
 const handsOffsetX = 140; //how much hands move on the x axis while juggling
-const handsOffsetY = 100; //how much hands move on the y axis while juggling
-const handsAccelerationX = (handsOffsetX) / ((framesPerThrow / 4) * (framesPerThrow / 4));
-const handsAccelerationY = (handsOffsetY) / ((framesPerThrow / 4) * (framesPerThrow / 4));
-const handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
+const handsOffsetY = 200; //how much hands move on the y axis while juggling
+
+let handsAccelerationX, handsAccelerationY, handsMaxVy, gravity = 2;
 
 let stepInCycle = 1; //1 to 20
 
-let rightHand = {
-  x: (WIDTH / 2) - handsDistance, y: HEIGHT - handsHeight - handsMaxVy,
-  dx: 0, dy: handsMaxVy
-};
+let rightHand = {}, leftHand = {};
 
-let leftHand = {
-  x: (WIDTH / 2) + handsDistance - handsOffsetX, y: HEIGHT - handsHeight,
-  dx: 0, dy: -handsMaxVy
-};
+function start() {
+  stepInCycle = 1;
+  balls = [];
+
+  maxThrowNumber = 0;
+
+  for(let i = 0; i < siteswap.length; i++) {
+    if(siteswap[i] > maxThrowNumber) {
+      maxThrowNumber = siteswap[i];
+    }
+  }
+
+  WIDTH = 1000;
+  HEIGHT = 1000;
+  gravity = 0.5;
+  framesPerThrow = 40;
+
+  if(maxThrowNumber <= 4) {
+    HEIGHT = 600;
+    WIDTH = 600;
+    gravity = 1;
+  }else if(maxThrowNumber <= 7) {
+    WIDTH = 1050;
+    HEIGHT = 1050;
+  }else if(maxThrowNumber <= 9) {
+    WIDTH = 1750;
+    HEIGHT = 1750;
+    framesPerThrow = 40;
+    gravity = 0.5;
+  }
+
+  handsAccelerationX = (handsOffsetX) / ((framesPerThrow / 4) * (framesPerThrow / 4));
+  handsAccelerationY = (handsOffsetY) / ((framesPerThrow / 4) * (framesPerThrow / 4));
+  handsMaxVy = handsAccelerationY * (framesPerThrow / 4);
+
+  leftHand = {
+    x: (WIDTH / 2) + handsDistance - handsOffsetX, y: HEIGHT - handsHeight,
+    dx: 0, dy: -handsMaxVy
+  };
+
+  rightHand = {
+    x: (WIDTH / 2) - handsDistance, y: HEIGHT - handsHeight - handsMaxVy,
+    dx: 0, dy: handsMaxVy
+  };
+
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+
+  setVariables(HEIGHT, WIDTH);
+}
 
 let balls = [];
 
 function render(currentTime) {
-  if(!playing) return;
   requestAnimationFrame(render);
 
   const secondsSinceLastRender = (currentTime - lastRenderTime)/1000;
@@ -62,7 +100,7 @@ function render(currentTime) {
   drawBalls(c, balls);
 
   stepInCycle++;
-  if(stepInCycle > 20) stepInCycle = 1;
+  if(stepInCycle > framesPerThrow) stepInCycle = 1;
 }
 
 const siteswapForm = document.getElementById('siteswap-form');
@@ -72,7 +110,7 @@ siteswapForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
   siteswap = siteswapInput.value;
-  playing = true;
+  start();
 
   requestAnimationFrame(render);
 });
@@ -109,7 +147,6 @@ function updateHands() {
 }
 
 function updateBalls() {
-  console.log(balls.length)
   if(
     stepInCycle == 1 ||
     stepInCycle == (framesPerThrow / 2) + 1
@@ -125,8 +162,7 @@ function updateBalls() {
     balls = balls.map(ball => {
       if(ball.y <= HEIGHT - handsHeight) {
         ball.release(gravity, framesPerThrow);
-        return ball;
-      }else return ball;
+      }return ball;
     });
   }
   
@@ -161,5 +197,7 @@ function updateBalls() {
   }
 }
 
-drawBody(c);
-drawHands(c, rightHand, leftHand);
+window.onload = () => {
+  start();
+  render();
+}
