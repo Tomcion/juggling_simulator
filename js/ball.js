@@ -5,6 +5,7 @@ export function Ball(x, y, isRightHand, throwNumber) {
   this.vy = 0;
   this.isRightHand = isRightHand;
   this.inHand = true;
+  this.throwNumber = throwNumber;
 
   this.release = (gravity, framesPerThrow) => {
     if(this.inHand) {

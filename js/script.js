@@ -15,7 +15,7 @@ let lastRenderTime = 0;
 const fps = 24;
 let framesPerThrow = 20;
 
-let siteswap = '744';
+let siteswap = '2';
 let maxThrowNumber = 0;
 let currentNumberIndex = 0;
 
@@ -157,25 +157,47 @@ function updateBalls() {
       currentNumberIndex = 0;
     }
 
-    balls = balls.filter(ball => ball.y <= HEIGHT - handsHeight);
+    balls = balls.filter(
+      ball => ball.y <= HEIGHT - handsHeight
+    );
+    
+    //deleting 2's
+    balls = balls.filter(ball => {
+      if(!(
+        stepInCycle == 1 &&
+        ball.isRightHand &&
+        ball.throwNumber == 2
+      ) && !(
+        stepInCycle == (framesPerThrow / 2) + 1 &&
+        !ball.isRightHand &&
+        ball.throwNumber == 2
+      ))return ball;
+    });
 
     balls = balls.map(ball => {
-      if(ball.y <= HEIGHT - handsHeight) {
+      if(
+        ball.y <= HEIGHT - handsHeight &&
+        ball.throwNumber != 2
+      ) {
         ball.release(gravity, framesPerThrow);
       }return ball;
     });
   }
-  
-  if(stepInCycle == 1) {
-    balls.push(new Ball(
-      rightHand.x, rightHand.y, 
-      true, siteswap[currentNumberIndex]
-    ));
-  }else if(stepInCycle == (framesPerThrow / 2) + 1) {
-    balls.push(new Ball(
-      leftHand.x, leftHand.y,
-      false, siteswap[currentNumberIndex]
-    ));
+
+  console.log(balls.length)
+
+  if(siteswap[currentNumberIndex] != 0) {
+    if(stepInCycle == 1) {
+      balls.push(new Ball(
+        rightHand.x, rightHand.y, 
+        true, siteswap[currentNumberIndex]
+      ));
+    }else if(stepInCycle == (framesPerThrow / 2) + 1) {
+      balls.push(new Ball(
+        leftHand.x, leftHand.y,
+        false, siteswap[currentNumberIndex]
+      ));
+    }
   }
 
   for(let i = 0; i < balls.length; i++) {
