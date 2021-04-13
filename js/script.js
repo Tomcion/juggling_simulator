@@ -170,7 +170,7 @@ function updateBalls() {
   //deleting all the caught balls
   balls = balls.filter(ball => (
     ball.x >= WIDTH / 2 - handsDistance &&
-    ball.x <= WIDTH / 2 + handsDistance
+    ball.x < WIDTH / 2 + handsDistance
   ));
 
   //this code will be executed at th beginning of each throw (and catch)
@@ -188,16 +188,15 @@ function updateBalls() {
     //deleting 2's
     balls = balls.filter(ball => {
       //determining if the ball is a 2
-      if(!(
+      if(!( //in the right hand
         stepInCycle == 1 &&
         ball.isRightHand &&
         ball.throwNumber == 2
-      ) && !(
+      ) && !( //in the left hand
         stepInCycle == (framesPerThrow / 2) + 1 &&
         !ball.isRightHand &&
         ball.throwNumber == 2
       )) {
-        
         //if the ball is not a 2 then keep it
         return true;
       }
