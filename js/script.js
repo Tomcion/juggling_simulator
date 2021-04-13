@@ -12,10 +12,10 @@ canvas.height = HEIGHT;
 const c = canvas.getContext('2d');
 
 let lastRenderTime = 0;
-const fps = 24;
+const fps = 30;
 let framesPerThrow = 20;
 
-let siteswap = '2';
+let siteswap = '744';
 let maxThrowNumber = 0;
 let currentNumberIndex = 0;
 
@@ -147,59 +147,8 @@ function updateHands() {
 }
 
 function updateBalls() {
-  if(
-    stepInCycle == 1 ||
-    stepInCycle == (framesPerThrow / 2) + 1
-  ) {
-    currentNumberIndex++;
 
-    if(currentNumberIndex >= siteswap.toString().length) {
-      currentNumberIndex = 0;
-    }
-
-    balls = balls.filter(
-      ball => ball.y <= HEIGHT - handsHeight
-    );
-    
-    //deleting 2's
-    balls = balls.filter(ball => {
-      if(!(
-        stepInCycle == 1 &&
-        ball.isRightHand &&
-        ball.throwNumber == 2
-      ) && !(
-        stepInCycle == (framesPerThrow / 2) + 1 &&
-        !ball.isRightHand &&
-        ball.throwNumber == 2
-      ))return ball;
-    });
-
-    balls = balls.map(ball => {
-      if(
-        ball.y <= HEIGHT - handsHeight &&
-        ball.throwNumber != 2
-      ) {
-        ball.release(gravity, framesPerThrow);
-      }return ball;
-    });
-  }
-
-  console.log(balls.length)
-
-  if(siteswap[currentNumberIndex] != 0) {
-    if(stepInCycle == 1) {
-      balls.push(new Ball(
-        rightHand.x, rightHand.y, 
-        true, siteswap[currentNumberIndex]
-      ));
-    }else if(stepInCycle == (framesPerThrow / 2) + 1) {
-      balls.push(new Ball(
-        leftHand.x, leftHand.y,
-        false, siteswap[currentNumberIndex]
-      ));
-    }
-  }
-
+  //updating the position of every single ball
   for(let i = 0; i < balls.length; i++) {
     if(balls[i].inHand) {
       balls[i].followHand(
@@ -217,6 +166,72 @@ function updateBalls() {
       );
     }
   }
+
+  //deleting all the caught balls
+  balls = balls.filter(ball => (
+    ball.x >= WIDTH / 2 - handsDistance &&
+    ball.x <= WIDTH / 2 + handsDistance
+  ));
+
+  //this code will be executed at th beginning of each throw (and catch)
+  if(
+    stepInCycle == 1 ||
+    stepInCycle == (framesPerThrow / 2) + 1
+  ) {
+
+    currentNumberIndex++;
+    if(currentNumberIndex >= siteswap.length) {
+      currentNumberIndex = 0;
+    }
+
+    
+    //deleting 2's
+    balls = balls.filter(ball => {
+      //determining if the ball is a 2
+      if(!(
+        stepInCycle == 1 &&
+        ball.isRightHand &&
+        ball.throwNumber == 2
+      ) && !(
+        stepInCycle == (framesPerThrow / 2) + 1 &&
+        !ball.isRightHand &&
+        ball.throwNumber == 2
+      )) {
+        
+        //if the ball is not a 2 then keep it
+        return true;
+      }
+      //if the ball is a 2 then delete it
+      return false;
+    });
+
+    //releasing balls
+    balls = balls.map(ball => {
+      if(
+        ball.y <= HEIGHT - handsHeight &&
+        ball.throwNumber != 2
+      ) {
+        ball.release(gravity, framesPerThrow);
+      }return ball;
+    });
+  }
+
+  //creating new balls
+  if(siteswap[currentNumberIndex] != 0) {
+    if(stepInCycle == 1) {
+      //adding a ball to the right hand
+      balls.push(new Ball(
+        rightHand.x, rightHand.y, 
+        true, siteswap[currentNumberIndex]
+      ));
+    }else if(stepInCycle == (framesPerThrow / 2) + 1) {
+      //adding a ball to the left hand
+      balls.push(new Ball(
+        leftHand.x, leftHand.y,
+        false, siteswap[currentNumberIndex]
+      ));
+    }
+  }  
 }
 
 window.onload = () => {
